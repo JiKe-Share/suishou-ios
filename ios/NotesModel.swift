@@ -163,7 +163,7 @@ struct Cache: Codable {
             let old = notes, oldDirty = dirty
             var merged = Dictionary(uniqueKeysWithValues: notes.map { ($0.id, $0) })
             for item in synced { merged[item.id] = item }
-            notes = Array(merged.values()); dirty.subtract(pending.map(\.id))
+            notes = Array(merged.values); dirty.subtract(pending.map(\.id))
             do { try persist() } catch { notes = old; dirty = oldDirty; throw error }
             status = "已同步 \(notes.count) 条"
         } catch { status = error.localizedDescription }
