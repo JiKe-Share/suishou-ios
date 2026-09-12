@@ -16,10 +16,13 @@ targets:
       - path: SuishouCunApp.swift
       - path: NotesModel.swift
       - path: ContentView.swift
+      - path: Assets.xcassets
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suishou.cun.ios
         PRODUCT_NAME: SuishouCun
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: 随手存
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
