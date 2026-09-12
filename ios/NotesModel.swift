@@ -109,6 +109,11 @@ struct Cache: Codable {
         var value = note; value.pinned.toggle()
         var group = ordered.filter { $0.id != note.id }; group.insert(value, at: 0); saveOrder(group)
     }
+    func moveBottom(_ note: Note) {
+        guard !busy else { return }
+        var value = note; value.pinned = false
+        var group = ordered.filter { $0.id != note.id }; group.append(value); saveOrder(group)
+    }
     private func saveOrder(_ group: [Note]) {
         let time = nextTime
         _ = commit(group.enumerated().map { index, note in

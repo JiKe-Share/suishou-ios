@@ -32,6 +32,7 @@ struct ContentView: View {
                             Button { model.move(note, by: -1) } label: { Image(systemName: "arrow.up") }.accessibilityLabel("上移")
                             Button { model.move(note, by: 1) } label: { Image(systemName: "arrow.down") }.accessibilityLabel("下移")
                             Button { model.pin(note) } label: { Image(systemName: note.pinned ? "pin.slash" : "pin") }.accessibilityLabel(note.pinned ? "取消置顶" : "置顶")
+                            Button { model.moveBottom(note) } label: { Image(systemName: "arrow.down.to.line") }.accessibilityLabel("置底")
                             Button { editing = note } label: { Image(systemName: "square.and.pencil") }.accessibilityLabel("编辑")
                         }.buttonStyle(.borderless).disabled(model.busy)
                     }.padding(.vertical, 6)
