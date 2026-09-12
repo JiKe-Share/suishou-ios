@@ -1,0 +1,52 @@
+name: Build iOS
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ios/**'
+      - '.github/workflows/build-ios.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install project generator
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate --spec ios/project.yml --project ios
+      - name: Build for iPhone
+        run: |
+          set -euo pipefail
+          xcodebuild -project ios/SuishouCun.xcodeproj -scheme SuishouCun -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build | tee build.log
+      - name: Test API decoding on simulator
+        run: |
+          set -euo pipefail
+          DEVICE=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(v["udid"] for k,vs in d["devices"].items() if "iOS" in k for v in vs if "iPhone" in v["name"]))')
+          xcodebuild -project ios/SuishouCun.xcodeproj -scheme SuishouCun -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath test-build CODE_SIGNING_ALLOWED=NO test | tee test.log
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          APP=build/Build/Products/Release-iphoneos/SuishouCun.app
+          test -f "$APP/SuishouCun"
+          file "$APP/SuishouCun" | grep arm64
+          mkdir -p package/Payload
+          cp -R "$APP" package/Payload/
+          cd package
+          zip -qry ../SuishouCun-unsigned.ipa Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SuishouCun-unsigned-IPA
+          path: SuishouCun-unsigned.ipa
+          if-no-files-found: error
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: |
+            build.log
+            test.log
